@@ -159,22 +159,13 @@
   geometry1.setIndex(new THREE.BufferAttribute(indices, 1));
   console.log(geometry1);
 
-  //设置2个顶点组，形成2个材质
-  geometry1.addGroup(0, 3, 0); //从第0个索引，添加3个顶点，用的第0个材质
-  geometry1.addGroup(3, 3, 1);
-
   //创建材质
   const material1 = new THREE.MeshBasicMaterial({
     color: 0x00ff00,
     // side: THREE.DoubleSide,
     wireframe: true,
   });
-  const material2 = new THREE.MeshBasicMaterial({
-    color: 0xff0000,
-    // side: THREE.DoubleSide,
-    // wireframe: true,
-  });
-  const plane = new THREE.Mesh(geometry1, [material1, material2]);
+  const plane = new THREE.Mesh(geometry1, material1);
   scene.add(plane);
 </script>
 
