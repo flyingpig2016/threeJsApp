@@ -56,8 +56,8 @@
   scene.add(axesHelper);
 
   // 添加轨道控制器
-  const controls = new OrbitControls(camera, renderer.domElement);
-  // const controls = new OrbitControls(camera, document.body); //会阻止点击事件
+  // const controls = new OrbitControls(camera, renderer.domElement);
+  const controls = new OrbitControls(camera, document.body);
   console.log(renderer);
 
   //设置带阻尼的惯性
@@ -88,40 +88,6 @@
     renderer.render(scene, camera);
   }
   animate();
-
-  //监听窗口变化
-  window.addEventListener("resize", () => {
-    //重置渲染宽高比
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    //重置相机宽高比
-    camera.aspect = window.innerWidth / window.innerHeight;
-    //更新相机投影矩阵
-    camera.updateProjectionMatrix();
-  });
-
-  const btn = document.createElement("button");
-  btn.innerHTML = "点击全屏";
-  btn.style.position = "absolute";
-  btn.style.top = "10px";
-  btn.style.left = "10px";
-  btn.style.zIndex = "999";
-  document.body.append(btn);
-  btn.onclick = () => {
-    //全屏
-    renderer.domElement.requestFullscreen();
-  };
-
-  const exitBtn = document.createElement("button");
-  exitBtn.innerHTML = "退出全屏";
-  exitBtn.style.position = "absolute";
-  exitBtn.style.top = "10px";
-  exitBtn.style.left = "150px";
-  exitBtn.style.zIndex = "999";
-  document.body.append(exitBtn);
-  exitBtn.onclick = () => {
-    //全屏
-    document.exitFullscreen();
-  };
 </script>
 
 <template>
