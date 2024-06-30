@@ -18,20 +18,11 @@
     0.1, //近平面
     1000 //远平面
   );
-  //设置相机位置
-  camera.position.z = 10;
-  camera.position.y = 2;
-  camera.position.x = 2;
-  camera.lookAt(0, 0, 0);
 
   //3. 创建渲染器
   const renderer = new THREE.WebGLRenderer();
   renderer.setSize(window.innerWidth, window.innerHeight);
   document.body.appendChild(renderer.domElement);
-
-  //添加世界坐标辅助器
-  const axesHelper = new THREE.AxesHelper(5);
-  scene.add(axesHelper);
 
   //创建材质
   const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
@@ -105,7 +96,11 @@
     //将网格添加到场景中
     scene.add(cube);
     scene.add(parentCube);
-
+    //设置相机位置
+    camera.position.z = 10;
+    camera.position.y = 2;
+    camera.position.x = 2;
+    camera.lookAt(0, 0, 0);
     // gui.add(cube.position, "x", -5, 5).name("立方体x轴位置");
     // 控制立方体位置
     let folder = gui.addFolder("立方体位置");
@@ -149,38 +144,11 @@
     return cube;
   }
 
-  // createBox();
+  createBox();
 
-  function createPlan() {
-    let planeGeometry = new THREE.PlaneGeometry(1, 1);
-    let planeMaterial = new THREE.MeshBasicMaterial({
-      color: 0xffffff,
-    });
-    let plane = new THREE.Mesh(planeGeometry, planeMaterial);
-
-    scene.add(plane);
-  }
-
-  createPlan();
-
-  // 创建立方体
-  function createCube() {
-    //创建几何体
-    const geometry = new THREE.BoxGeometry(1, 1, 1);
-    console.log(geometry);
-
-    //创建网格
-    const cube = new THREE.Mesh(geometry, material);
-
-    //将网格添加到场景中
-    scene.add(cube);
-    //设置相机位置
-    camera.position.z = 10;
-
-    //添加世界坐标辅助器
-    const axesHelper = new THREE.AxesHelper(5);
-    scene.add(axesHelper);
-  }
+  //添加世界坐标辅助器
+  const axesHelper = new THREE.AxesHelper(5);
+  scene.add(axesHelper);
 
   // 轨道控制器
   function createOribt() {
@@ -220,6 +188,60 @@
     //更新相机投影矩阵
     camera.updateProjectionMatrix();
   });
+
+  // 根据顶点创建几何体
+  function createGeoByArr() {
+    // 创建几何体
+    const geometry1 = new THREE.BufferGeometry();
+    // 创建顶点数据 顶点有顺序，逆时针为正面
+    // const vertices = new Float32Array([
+    //   -1, -1, 0, 1, -1, 0, 1, 1, 0,
+
+    //   1, 1, 0, -1, 1, 0, -1, -1, 0,
+    // ]);
+    // //创建顶点属性
+    // geometry1.setAttribute("position", new THREE.BufferAttribute(vertices, 3));
+
+    // 使用索引绘制
+    const vertices = new Float32Array([-1, -1, 0, 1, -1, 0, 1, 1, 0, -1, 1, 0]);
+    // 创建顶点属性
+    geometry1.setAttribute("position", new THREE.BufferAttribute(vertices, 3));
+    // 创建索引
+    const indices = new Uint16Array([0, 1, 2, 2, 3, 0]);
+    //创建索引属性
+    geometry1.setIndex(new THREE.BufferAttribute(indices, 1));
+    console.log(geometry1);
+
+    //设置2个顶点组，形成2个材质
+    geometry1.addGroup(0, 3, 0); //从第0个索引，添加3个顶点，用的第0个材质
+    geometry1.addGroup(3, 3, 1);
+
+    const plane = new THREE.Mesh(geometry1, [material1, material2]);
+
+    // 创建顶点属性
+    geometry1.setAttribute("position", new THREE.BufferAttribute(vertices, 3));
+
+    scene.add(plane);
+  }
+
+  //创建一个六个面都不一样的网格
+  function create6S() {
+    const geometry = new THREE.BoxGeometry(1, 1, 1);
+
+    const cube = new THREE.Mesh(geometry, [
+      material1,
+      material2,
+      material3,
+      material4,
+      material5,
+      material6,
+    ]);
+    cube.position.y = 3;
+    scene.add(cube);
+  }
+  create6S();
+
+  createGeoByArr();
 </script>
 
 <template>
