@@ -4,9 +4,10 @@
   import * as THREE from "three";
   // 导入轨道控制器
   import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+  import diban from "./assets/machine/redleng.jpeg";
 
   // 导入lil.gui
-  import { GUI } from "three/examples/jsm/libs/lil-gui.module.min.js";
+  // import { GUI } from "three/examples/jsm/libs/lil-gui.module.min.js";
 
   //1. 创建场景
   const scene = new THREE.Scene();
@@ -33,128 +34,22 @@
   const axesHelper = new THREE.AxesHelper(5);
   scene.add(axesHelper);
 
-  //创建材质
-  const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-  const parentMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-  //创建材质
-  const material1 = new THREE.MeshBasicMaterial({
-    color: 0x00ff00,
-    // side: THREE.DoubleSide,
-    wireframe: true,
-  });
-  const material2 = new THREE.MeshBasicMaterial({
-    color: 0xff0ff0,
-  });
-  const material3 = new THREE.MeshBasicMaterial({
-    color: 0xf0ff00,
-  });
-  const material4 = new THREE.MeshBasicMaterial({
-    color: 0x0f00ff,
-  });
-  const material5 = new THREE.MeshBasicMaterial({
-    color: 0x0bb000,
-  });
-  const material6 = new THREE.MeshBasicMaterial({
-    color: 0xcceef0,
-  });
-
-  // 创建GUI
-  function createGui() {
-    let eventObj = {
-      Fullscreen: function () {
-        document.body.requestFullscreen();
-      },
-      ExitFullscreen: function () {
-        document.exitFullscreen();
-      },
-    };
-
-    //创建GUI
-    const gui = new GUI();
-    //添加按钮
-    gui.add(eventObj, "Fullscreen").name("全屏");
-    gui.add(eventObj, "ExitFullscreen").name("退出全屏");
-    return gui;
-  }
-  const gui = createGui();
-
-  // 创建立方体
-  function createBox() {
-    //创建几何体
-    const geometry = new THREE.BoxGeometry(1, 1, 1);
-    console.log(geometry);
-
-    parentMaterial.wireframe = true;
-
-    //创建网格
-    const cube = new THREE.Mesh(geometry, material);
-    const parentCube = new THREE.Mesh(geometry, parentMaterial);
-
-    // parentCube.add(cube);
-    parentCube.position.set(-3, 0, 0);
-    cube.position.set(3, 0, 0); //有父元素就是相对坐标，没有父元素就是世界坐标
-
-    //立方体放大缩小
-    parentCube.scale.set(1, 1, 1);
-    cube.scale.set(1, 1, 1);
-
-    //绕x轴旋转
-    // parentCube.rotation.x = Math.PI / 4;
-    cube.rotation.x = Math.PI / 4; //叠加父元素的旋转
-
-    //将网格添加到场景中
-    scene.add(cube);
-    scene.add(parentCube);
-
-    // gui.add(cube.position, "x", -5, 5).name("立方体x轴位置");
-    // 控制立方体位置
-    let folder = gui.addFolder("立方体位置");
-    folder
-      .add(cube.position, "x")
-      .min(-10)
-      .max(10)
-      .step(1)
-      .name("立方体x轴位置")
-      .onChange((val) => {
-        console.log("立方体x轴位置" + val);
-      })
-      .onFinishChange((val) => {
-        console.log("立方体x轴Finish位置" + val);
-      });
-    folder
-      .add(cube.position, "y")
-      .min(-10)
-      .max(10)
-      .step(1)
-      .name("立方体y轴位置");
-    folder
-      .add(cube.position, "z")
-      .min(-10)
-      .max(10)
-      .step(1)
-      .name("立方体z轴位置");
-
-    gui.add(parentMaterial, "wireframe").name("父元素线框模式");
-    let colorParams = {
-      cubeColor: "#ff0000",
-    };
-    gui
-      .addColor(colorParams, "cubeColor")
-      .name("立方体颜色")
-      .onChange((val) => {
-        console.log(val);
-        cube.material.color.set(val);
-        parentCube.material.color.set(val);
-      });
-    return cube;
-  }
-
-  // createBox();
-
   function createPlan() {
-    let planeGeometry = new THREE.PlaneGeometry(1, 1);
+    //创建纹理加载器
+    let textureLoader = new THREE.TextureLoader();
+    //加载纹理
+    let texture = textureLoader.load(diban, function () {
+      console.log("Texture loaded");
+    });
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    // texture.repeat.set(4, 4);
+
+    let planeGeometry = new THREE.PlaneGeometry(5, 5);
+    //创建材质
     let planeMaterial = new THREE.MeshBasicMaterial({
       color: 0xffffff,
+      map: texture,
     });
     let plane = new THREE.Mesh(planeGeometry, planeMaterial);
 
@@ -162,25 +57,6 @@
   }
 
   createPlan();
-
-  // 创建立方体
-  function createCube() {
-    //创建几何体
-    const geometry = new THREE.BoxGeometry(1, 1, 1);
-    console.log(geometry);
-
-    //创建网格
-    const cube = new THREE.Mesh(geometry, material);
-
-    //将网格添加到场景中
-    scene.add(cube);
-    //设置相机位置
-    camera.position.z = 10;
-
-    //添加世界坐标辅助器
-    const axesHelper = new THREE.AxesHelper(5);
-    scene.add(axesHelper);
-  }
 
   // 轨道控制器
   function createOribt() {
