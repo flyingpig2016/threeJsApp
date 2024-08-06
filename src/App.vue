@@ -8,6 +8,7 @@
   import mudiban from "./assets/machine/mudiban.jpg";
   import zuanshi from "./assets/machine/zuanshi.jpeg";
   import colors from "./assets/machine/colors.png";
+  import youery from "./assets/environment/幼儿园1.hdr";
   // 导入hdr加载器
   import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
 
@@ -42,6 +43,8 @@
   function createPlan() {
     //创建纹理加载器
     let textureLoader = new THREE.TextureLoader();
+    //加载hdr图片
+    let rgbeLoader = new RGBELoader();
     //加载纹理
     let texture = textureLoader.load(diban, function () {
       console.log("Texture loaded");
@@ -54,6 +57,10 @@
     });
     let lightMap = textureLoader.load(colors, () => {
       console.log("光照贴图加载完成");
+    });
+    let rgbMap = rgbeLoader.load(youery, (envMap) => {
+      console.log("幼儿园图片加载完成");
+      envMap.background = envMap;
     });
 
     texture.wrapS = THREE.RepeatWrapping;
