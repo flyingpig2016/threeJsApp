@@ -5,9 +5,14 @@
   // 导入轨道控制器
   import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
   import diban from "./assets/machine/redleng.jpeg";
+  import mudiban from "./assets/machine/mudiban.jpg";
+  import zuanshi from "./assets/machine/zuanshi.jpeg";
+  import colors from "./assets/machine/colors.png";
+  // 导入hdr加载器
+  import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
 
   // 导入lil.gui
-  // import { GUI } from "three/examples/jsm/libs/lil-gui.module.min.js";
+  import { GUI } from "three/examples/jsm/libs/lil-gui.module.min.js";
 
   //1. 创建场景
   const scene = new THREE.Scene();
@@ -41,17 +46,39 @@
     let texture = textureLoader.load(diban, function () {
       console.log("Texture loaded");
     });
+    let aoMap = textureLoader.load(mudiban, () => {
+      console.log("ao贴图加载完毕");
+    });
+    let alphaMap = textureLoader.load(zuanshi, () => {
+      console.log("透明度贴图加载完成");
+    });
+    let lightMap = textureLoader.load(colors, () => {
+      console.log("光照贴图加载完成");
+    });
+
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.RepeatWrapping;
     // texture.repeat.set(4, 4);
 
+    // 创建一个平面
     let planeGeometry = new THREE.PlaneGeometry(5, 5);
     //创建材质
     let planeMaterial = new THREE.MeshBasicMaterial({
       color: 0xffffff,
       map: texture,
+      // 允许透明
+      transparent: true,
+      // 设置ao贴图
+      aoMap,
+      aoMapIntensity: 0,
+      //设置透明度贴图
+      // alphaMap,
+      // 设置光照贴图
+      lightMap,
     });
     let plane = new THREE.Mesh(planeGeometry, planeMaterial);
+    const gui = new GUI();
+    gui.add(planeMaterial, "aoMapIntensity").min(0).max(1).name("透明");
 
     scene.add(plane);
   }
