@@ -4,11 +4,11 @@
   import * as THREE from "three";
   // 导入轨道控制器
   import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-  import diban from "./assets/machine/redleng.jpeg";
+  import diban from "./assets/machine/yinyuan1.webp";
   import mudiban from "./assets/machine/mudiban.jpg";
   import zuanshi from "./assets/machine/zuanshi.jpeg";
   import colors from "./assets/machine/colors.png";
-  import youery from "./assets/environment/幼儿园1.hdr";
+  import bedroom from "./assets/environment/102714007卧室室内贴图.jpg";
   // 导入hdr加载器
   import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
 
@@ -49,20 +49,38 @@
     let texture = textureLoader.load(diban, function () {
       console.log("Texture loaded");
     });
-    let aoMap = textureLoader.load(mudiban, () => {
-      console.log("ao贴图加载完毕");
+    let aoMap = textureLoader.load(mudiban, (aoImg) => {
+      console.log("ao贴图加载完毕", aoImg);
     });
-    let alphaMap = textureLoader.load(zuanshi, () => {
-      console.log("透明度贴图加载完成");
+    let alphaMap = textureLoader.load(zuanshi, (alimg) => {
+      console.log("透明度贴图加载完成", alimg);
     });
-    let lightMap = textureLoader.load(colors, () => {
-      console.log("光照贴图加载完成");
-    });
-    let rgbMap = rgbeLoader.load(youery, (envMap) => {
-      console.log("幼儿园图片加载完成");
-      envMap.background = envMap;
+    let lightMap = textureLoader.load(colors, (lImg) => {
+      console.log("光照贴图加载完成", lImg);
     });
 
+    //卧室环境贴图**********
+    // textureLoader.load(bedroom, (alimg) => {
+    //   console.log("透明度贴图加载完成", alimg);
+    //   alimg.mapping = THREE.EquirectangularReflectionMapping;
+    //   scene.background = alimg;
+    // });
+
+    // hdr幼儿园环境贴图**************
+    // rgbeLoader.loadAsync("./environment/kindergarten.hdr").then((envMap) => {
+    rgbeLoader.loadAsync("./environment/kindergarten.hdr").then((envMap) => {
+      console.log("幼儿园图片加载完成", envMap);
+      //设置球形贴图
+      envMap.mapping = THREE.EquirectangularReflectionMapping;
+      // 场景背景：若不为空，在渲染场景的时候将设置背景，且背景总是首先被渲染的。 可以设置一个用于的“clear”的Color（颜色）、一个覆盖canvas的Texture（纹理）， 或是 a cubemap as a CubeTexture or an equirectangular as a Texture。默认值为null。
+      scene.background = envMap;
+      // 设置环境贴图：若该值不为null，则该纹理贴图将会被设为场景中所有物理材质的环境贴图。 然而，该属性不能够覆盖已存在的、已分配给 MeshStandardMaterial.envMap 的贴图。默认为null。
+      scene.environment = envMap;
+      //设置plan环境贴图：通常是一个包含场景周围环境的反射或折射贴图
+      planeMaterial.envMap = envMap;
+    });
+
+    // 纹理将会在水平和垂直方向上不断重复
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.RepeatWrapping;
     // texture.repeat.set(4, 4);
@@ -73,6 +91,8 @@
     let planeMaterial = new THREE.MeshBasicMaterial({
       color: 0xffffff,
       map: texture,
+      side: THREE.DoubleSide,
+      wireframe: false,
       // 允许透明
       transparent: true,
       // 设置ao贴图
@@ -81,7 +101,7 @@
       //设置透明度贴图
       // alphaMap,
       // 设置光照贴图
-      lightMap,
+      // lightMap,
     });
     let plane = new THREE.Mesh(planeGeometry, planeMaterial);
     const gui = new GUI();
