@@ -4,11 +4,12 @@
   import * as THREE from "three";
   // 导入轨道控制器
   import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-  import diban from "./assets/machine/yinyuan1.webp";
+  import yinyuan from "./assets/machine/yinyuan1.webp";
   import mudiban from "./assets/machine/mudiban.jpg";
   import zuanshi from "./assets/machine/zuanshi.jpeg";
   import colors from "./assets/machine/colors.png";
-  import bedroom from "./assets/environment/102714007卧室室内贴图.jpg";
+  import bedroom from "../public/environment/102714007卧室室内贴图.jpg";
+  import specularMap from "./assets/machine/mudiban.jpg";
   // 导入hdr加载器
   import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
 
@@ -46,9 +47,17 @@
     //加载hdr图片
     let rgbeLoader = new RGBELoader();
     //加载纹理
-    let texture = textureLoader.load(diban, function () {
-      console.log("Texture loaded");
+    let texture = textureLoader.load(yinyuan, (yin) => {
+      console.log("Texture loaded", yin);
     });
+    // 纹理将会在水平和垂直方向上不断重复
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    // texture.repeat.set(4, 4);
+    texture.colorSpace = THREE.SRGBColorSpace; //符合人眼可以识别的颜色
+    // texture.colorSpace = THREE.LinearSRGBColorSpace; //默认
+    // texture.colorSpace = THREE.NoColorSpace; //默认线型
+
     let aoMap = textureLoader.load(mudiban, (aoImg) => {
       console.log("ao贴图加载完毕", aoImg);
     });
@@ -68,7 +77,7 @@
 
     // hdr幼儿园环境贴图**************
     // rgbeLoader.loadAsync("./environment/kindergarten.hdr").then((envMap) => {
-    rgbeLoader.loadAsync("./environment/kindergarten.hdr").then((envMap) => {
+    textureLoader.load(bedroom, (envMap) => {
       console.log("幼儿园图片加载完成", envMap);
       //设置球形贴图
       envMap.mapping = THREE.EquirectangularReflectionMapping;
@@ -80,10 +89,10 @@
       planeMaterial.envMap = envMap;
     });
 
-    // 纹理将会在水平和垂直方向上不断重复
-    texture.wrapS = THREE.RepeatWrapping;
-    texture.wrapT = THREE.RepeatWrapping;
-    // texture.repeat.set(4, 4);
+    //高光贴图
+    let specular = textureLoader.load(specularMap, (img) => {
+      console.log("高光贴图加载完成", img);
+    });
 
     // 创建一个平面
     let planeGeometry = new THREE.PlaneGeometry(5, 5);
@@ -93,19 +102,25 @@
       map: texture,
       side: THREE.DoubleSide,
       wireframe: false,
-      // 允许透明
-      transparent: true,
-      // 设置ao贴图
-      aoMap,
+      transparent: true, // 允许透明
+      aoMap, // 设置ao贴图
       aoMapIntensity: 0,
-      //设置透明度贴图
-      // alphaMap,
-      // 设置光照贴图
-      // lightMap,
+      // alphaMap,//设置透明度贴图
+      // lightMap,// 设置光照贴图
+      // specularMap: specular, //设置高光贴图
+      reflectivity: 1, //反射程度
     });
     let plane = new THREE.Mesh(planeGeometry, planeMaterial);
     const gui = new GUI();
     gui.add(planeMaterial, "aoMapIntensity").min(0).max(1).name("透明");
+    gui
+      .add(texture, "colorSpace", {
+        sRGB: THREE.SRGBColorSpace,
+        Linear: THREE.LinearSRGBColorSpace,
+      })
+      .onChange(() => {
+        texture.needsUpdate = true; //如果不设置，设置colorspace不生效
+      });
 
     scene.add(plane);
   }
